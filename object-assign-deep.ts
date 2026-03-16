@@ -1,4 +1,4 @@
-type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
+type UnionToIntersection<U> = (U extends unknown ? (_: U) => unknown : never) extends (_: infer I) => unknown ? I : never;
 
 export function objectAssignDeep<T extends object, U extends object[]>(target: T, ...sources: U): T & UnionToIntersection<U[number]> {
   const isPlainObject = (value: unknown): value is Record<string, any> => Object.prototype.toString.call(value) === '[object Object]';
