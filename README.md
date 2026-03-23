@@ -1,8 +1,8 @@
-# object-asign-deep.js
+# asign-object-deep.js
 JS snippet for a deep `Object.assign()`.
 ## Installation
 ```js
-import { objectAssignDeep } from './object-assign-deep.js';
+import { assignObjectDeep } from './assign-object-deep.js';
 
-objectAssignDeep(target, source1, source2, /* ..., */ sourceN);
+assignObjectDeep(target, source1, source2, /* ..., */ sourceN);
 ```
