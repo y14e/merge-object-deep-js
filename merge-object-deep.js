@@ -1,30 +1,30 @@
 export function mergeObjectDeep(target, ...sources) {
   const isPlainObject = (object) => Object.prototype.toString.call(object) === '[object Object]';
-  const structuredCloneSafe = (object, seen) => {
+  const structuredCloneSafe = (object, cache) => {
     try {
       return structuredClone(object);
     } catch {
-      return Array.isArray(object) ? [...object] : isPlainObject(object) ? merge({}, object, seen) : object;
+      return Array.isArray(object) ? [...object] : isPlainObject(object) ? merge({}, object, cache) : object;
     }
   };
-  const merge = (target, source, seen) => {
+  const merge = (target, source, cache) => {
     if (!source || typeof source !== 'object') {
       return target;
     }
-    if (seen.has(source)) {
-      return seen.get(source);
+    if (cache.has(source)) {
+      return cache.get(source);
     }
-    seen.set(source, target);
+    cache.set(source, target);
     Object.entries(source).forEach(([key, sourceValue]) => {
       if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
         return;
       }
       const targetValue = target[key];
-      target[key] = isPlainObject(sourceValue) && isPlainObject(targetValue) ? merge(targetValue, sourceValue, seen) : structuredCloneSafe(sourceValue, seen);
+      target[key] = isPlainObject(sourceValue) && isPlainObject(targetValue) ? merge(targetValue, sourceValue, cache) : structuredCloneSafe(sourceValue, cache);
     });
     return target;
   };
-  const seen = new WeakMap();
-  sources.forEach((source) => merge(target, source, seen));
+  const cache = new WeakMap();
+  sources.forEach((source) => merge(target, source, cache));
   return target;
 }
