@@ -1,8 +1,8 @@
-# asign-object-deep.js
+# merge-object-deep.js
 JS snippet for a deep `Object.assign()`.
 ## Installation
 ```js
-import { assignObjectDeep } from './assign-object-deep.js';
+import { mergeObjectDeep } from './merge-object-deep.js';
 
-assignObjectDeep(target, source1, source2, /* ..., */ sourceN);
+mergeObjectDeep(target, source1, source2, /* ..., */ sourceN);
 ```
