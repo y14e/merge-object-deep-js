@@ -1,10 +1,10 @@
-export function assignObjectDeep(target, ...sources) {
+export function mergeObjectDeep(target, ...sources) {
   const isPlainObject = (object) => Object.prototype.toString.call(object) === '[object Object]';
   const structuredCloneSafe = (object) => {
     try {
       return structuredClone(object);
     } catch {
-      return Array.isArray(object) ? [...object] : isPlainObject(object) ? assignObjectDeep({}, object) : object;
+      return Array.isArray(object) ? [...object] : isPlainObject(object) ? mergeObjectDeep({}, object) : object;
     }
   };
   sources.forEach((source) => {
@@ -13,7 +13,7 @@ export function assignObjectDeep(target, ...sources) {
     }
     Object.entries(source).forEach(([key, sourceValue]) => {
       const targetValue = target[key];
-      target[key] = isPlainObject(sourceValue) && isPlainObject(targetValue) ? assignObjectDeep(targetValue, sourceValue) : structuredCloneSafe(sourceValue);
+      target[key] = isPlainObject(sourceValue) && isPlainObject(targetValue) ? mergeObjectDeep(targetValue, sourceValue) : structuredCloneSafe(sourceValue);
     });
   });
   return target;
