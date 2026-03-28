@@ -8,19 +8,25 @@ export function mergeObjectDeep<T extends PlainObject, U extends PlainObject[]>(
     try {
       return structuredClone(object);
     } catch {
-      return Array.isArray(object) ? [...object] : isPlainObject(object) ? merge({}, object, cache) : object;
+      if (Array.isArray(object)) {
+        return [...object];
+      }
+      if (isPlainObject(object)) {
+        return merge({}, object, cache);
+      }
+      return object;
     }
   };
-  const merge = (target: PlainObject, source: unknown, cache: Cache): PlainObject => {
-    if (!source || typeof source !== 'object') return target;
+  const merge = (t: PlainObject, source: unknown, cache: Cache): PlainObject => {
+    if (!source || typeof source !== 'object') return t;
     if (cache.has(source)) return cache.get(source)!;
-    cache.set(source, target);
+    cache.set(source, t);
     Object.entries(source as PlainObject).forEach(([key, sourceValue]) => {
       if (key === '__proto__' || key === 'constructor' || key === 'prototype') return;
-      const targetValue = target[key];
-      target[key] = isPlainObject(sourceValue) && isPlainObject(targetValue) ? merge(targetValue, sourceValue, cache) : structuredCloneSafe(sourceValue, cache);
+      const targetValue = t[key];
+      t[key] = isPlainObject(sourceValue) && isPlainObject(targetValue) ? merge(targetValue, sourceValue, cache) : structuredCloneSafe(sourceValue, cache);
     });
-    return target;
+    return t;
   };
   const cache: Cache = new WeakMap();
   sources.forEach((source) => merge(target, source, cache));
