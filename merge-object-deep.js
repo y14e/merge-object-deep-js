@@ -9,6 +9,7 @@ export function mergeObjectDeep(target, ...sources) {
   };
   const merge = (target, source, cache) => {
     if (!source || typeof source !== 'object') return target;
+    if (!isPlainObject(source)) return target;
     if (cache.has(source)) return cache.get(source) ?? target;
     cache.set(source, target);
     Object.entries(source).forEach(([key, sourceValue]) => {

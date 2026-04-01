@@ -19,9 +19,10 @@ export function mergeObjectDeep<T extends PlainObject, U extends PlainObject[]>(
   };
   const merge = (target: PlainObject, source: unknown, cache: Cache): PlainObject => {
     if (!source || typeof source !== 'object') return target;
+    if (!isPlainObject(source)) return target;
     if (cache.has(source)) return cache.get(source) ?? target;
     cache.set(source, target);
-    Object.entries(source as PlainObject).forEach(([key, sourceValue]) => {
+    Object.entries(source).forEach(([key, sourceValue]) => {
       if (key === '__proto__' || key === 'constructor' || key === 'prototype') return;
       const targetValue = target[key];
       target[key] = isPlainObject(sourceValue) && isPlainObject(targetValue) ? merge(targetValue, sourceValue, cache) : structuredCloneSafe(sourceValue, cache);
