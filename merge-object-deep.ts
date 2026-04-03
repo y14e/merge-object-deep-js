@@ -9,7 +9,11 @@ export function mergeObjectDeep<T extends PlainObject, U extends PlainObject[]>(
       return structuredClone(object);
     } catch {
       if (Array.isArray(object)) {
-        return [...object];
+        const array: unknown[] = new Array(object.length);
+        object.forEach((item, i) => {
+          array[i] = item;
+        });
+        return array;
       }
       if (isPlainObject(object)) {
         return merge({}, object, cache);

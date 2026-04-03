@@ -4,7 +4,17 @@ export function mergeObjectDeep(target, ...sources) {
     try {
       return structuredClone(object);
     } catch {
-      return Array.isArray(object) ? [...object] : isPlainObject(object) ? merge({}, object, cache) : object;
+      if (Array.isArray(object)) {
+        const array = new Array(object.length);
+        object.forEach((item, i) => {
+          array[i] = item;
+        });
+        return array;
+      }
+      if (isPlainObject(object)) {
+        return merge({}, object, cache);
+      }
+      return object;
     }
   };
   const merge = (target, source, cache) => {
