@@ -37,10 +37,10 @@ function merge(target, source, cache) {
       if (isPlainObject(targetValue)) {
         merge(targetValue, sourceValue, cache);
       } else {
-        const next = {};
-        cache.set(sourceValue, next);
-        merge(next, sourceValue, cache);
-        target[key] = next;
+        const clone = {};
+        cache.set(sourceValue, clone);
+        merge(clone, sourceValue, cache);
+        target[key] = clone;
       }
       continue;
     }

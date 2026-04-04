@@ -41,10 +41,10 @@ function merge(target: PlainObject, source: PlainObject, cache: Cache): void {
       if (isPlainObject(targetValue)) {
         merge(targetValue, sourceValue, cache);
       } else {
-        const next: PlainObject = {};
-        cache.set(sourceValue, next);
-        merge(next, sourceValue, cache);
-        target[key] = next;
+        const clone: PlainObject = {};
+        cache.set(sourceValue, clone);
+        merge(clone, sourceValue, cache);
+        target[key] = clone;
       }
       continue;
     }
@@ -58,7 +58,7 @@ function structuredCloneSafe(value: unknown) {
     return structuredClone(value);
   } catch {
     if (Array.isArray(value)) {
-      const result = [];
+      const result: unknown[] = [];
       for (const item of value) {
         result.push(item);
       }
