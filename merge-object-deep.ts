@@ -30,11 +30,11 @@ function structuredCloneSafe(value: unknown, cache: Cache): unknown {
     return structuredClone(value);
   } catch {
     if (Array.isArray(value)) {
-      const array: unknown[] = new Array(value.length);
+      const result: unknown[] = new Array(value.length);
       value.forEach((item, i) => {
-        array[i] = item;
+        result[i] = item;
       });
-      return array;
+      return result;
     }
     if (isPlainObject(value)) {
       return merge({}, value, cache);

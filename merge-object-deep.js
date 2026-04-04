@@ -26,11 +26,11 @@ function structuredCloneSafe(value, cache) {
     return structuredClone(value);
   } catch {
     if (Array.isArray(value)) {
-      const array = new Array(value.length);
+      const result = new Array(value.length);
       value.forEach((item, i) => {
-        array[i] = item;
+        result[i] = item;
       });
-      return array;
+      return result;
     }
     if (isPlainObject(value)) {
       return merge({}, value, cache);
