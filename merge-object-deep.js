@@ -1,39 +1,71 @@
 export function mergeObjectDeep(target, ...sources) {
   const cache = new WeakMap();
-  sources.forEach((source) => merge(target, source, cache));
+  for (const source of sources) {
+    if (isPlainObject(source)) {
+      merge(target, source, cache);
+    }
+  }
   return target;
+}
+
+function getCache(cache, key) {
+  const value = cache.get(key);
+  if (!value) throw new Error('Cache key missing');
+  return value;
+}
+
+const objectProto = Object.prototype;
+
+function isPlainObject(value) {
+  if (!value || typeof value !== 'object') return false;
+  const proto = Object.getPrototypeOf(value);
+  return proto === null || proto === objectProto;
 }
 
 function merge(target, source, cache) {
-  if (!source || typeof source !== 'object') return target;
-  if (!isPlainObject(source)) return target;
-  if (cache.has(source)) return cache.get(source) ?? target;
+  if (cache.has(source)) return;
   cache.set(source, target);
-  Object.entries(source).forEach(([key, sourceValue]) => {
-    if (key === '__proto__' || key === 'constructor' || key === 'prototype') return;
+  for (const key of Object.keys(source)) {
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') continue;
+    const sourceValue = source[key];
     const targetValue = target[key];
-    target[key] = isPlainObject(sourceValue) && isPlainObject(targetValue) ? merge(targetValue, sourceValue, cache) : structuredCloneSafe(sourceValue, cache);
-  });
-  return target;
+    if (isPlainObject(sourceValue)) {
+      if (cache.has(sourceValue)) {
+        target[key] = getCache(cache, sourceValue);
+        continue;
+      }
+      if (isPlainObject(targetValue)) {
+        merge(targetValue, sourceValue, cache);
+      } else {
+        const next = {};
+        cache.set(sourceValue, next);
+        merge(next, sourceValue, cache);
+        target[key] = next;
+      }
+      continue;
+    }
+    target[key] = structuredCloneSafe(sourceValue);
+  }
 }
 
-function isPlainObject(value) {
-  return Object.prototype.toString.call(value) === '[object Object]';
-}
-
-function structuredCloneSafe(value, cache) {
+function structuredCloneSafe(value) {
+  if (value === null || typeof value !== 'object') return value;
   try {
     return structuredClone(value);
   } catch {
     if (Array.isArray(value)) {
-      const result = new Array(value.length);
-      value.forEach((item, i) => {
-        result[i] = item;
-      });
+      const result = [];
+      for (const item of value) {
+        result.push(item);
+      }
       return result;
     }
     if (isPlainObject(value)) {
-      return merge({}, value, cache);
+      const result = {};
+      for (const key of Object.keys(value)) {
+        result[key] = value[key];
+      }
+      return result;
     }
     return value;
   }
