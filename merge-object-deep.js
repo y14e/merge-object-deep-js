@@ -8,20 +8,6 @@ export function mergeObjectDeep(target, ...sources) {
   return target;
 }
 
-function getCache(cache, key) {
-  const value = cache.get(key);
-  if (!value) throw new Error('Cache key missing');
-  return value;
-}
-
-const objectProto = Object.prototype;
-
-function isPlainObject(value) {
-  if (!value || typeof value !== 'object') return false;
-  const proto = Object.getPrototypeOf(value);
-  return proto === null || proto === objectProto;
-}
-
 function merge(target, source, cache) {
   if (cache.has(source)) return;
   cache.set(source, target);
@@ -46,6 +32,20 @@ function merge(target, source, cache) {
     }
     target[key] = structuredCloneSafe(sourceValue);
   }
+}
+
+function getCache(cache, key) {
+  const value = cache.get(key);
+  if (!value) throw new Error('Cache key missing');
+  return value;
+}
+
+const objectProto = Object.prototype;
+
+function isPlainObject(value) {
+  if (!value || typeof value !== 'object') return false;
+  const proto = Object.getPrototypeOf(value);
+  return proto === null || proto === objectProto;
 }
 
 function structuredCloneSafe(value) {

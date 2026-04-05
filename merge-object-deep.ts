@@ -12,20 +12,6 @@ export function mergeObjectDeep<T extends PlainObject, U extends unknown[]>(targ
   return target as T & UnionToIntersection<Extract<U[number], PlainObject>>;
 }
 
-function getCache(cache: Cache, key: PlainObject): PlainObject {
-  const value = cache.get(key);
-  if (!value) throw new Error('Cache key missing');
-  return value;
-}
-
-const objectProto = Object.prototype;
-
-function isPlainObject(value: unknown): value is PlainObject {
-  if (!value || typeof value !== 'object') return false;
-  const proto = Object.getPrototypeOf(value);
-  return proto === null || proto === objectProto;
-}
-
 function merge(target: PlainObject, source: PlainObject, cache: Cache): void {
   if (cache.has(source)) return;
   cache.set(source, target);
@@ -50,6 +36,20 @@ function merge(target: PlainObject, source: PlainObject, cache: Cache): void {
     }
     target[key] = structuredCloneSafe(sourceValue);
   }
+}
+
+function getCache(cache: Cache, key: PlainObject): PlainObject {
+  const value = cache.get(key);
+  if (!value) throw new Error('Cache key missing');
+  return value;
+}
+
+const objectProto = Object.prototype;
+
+function isPlainObject(value: unknown): value is PlainObject {
+  if (!value || typeof value !== 'object') return false;
+  const proto = Object.getPrototypeOf(value);
+  return proto === null || proto === objectProto;
 }
 
 function structuredCloneSafe(value: unknown) {
