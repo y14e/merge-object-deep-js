@@ -55,8 +55,8 @@ function structuredCloneSafe(value) {
   } catch {
     if (Array.isArray(value)) {
       const result = [];
-      for (const item of value) {
-        result.push(item);
+      for (const v of value) {
+        result.push(v);
       }
       return result;
     }
