@@ -17,7 +17,7 @@ function merge(target, source, ref) {
     const targetValue = target[key];
     if (isPlainObject(sourceValue)) {
       if (ref.has(sourceValue)) {
-        target[key] = getCache(ref, sourceValue);
+        target[key] = getCircularRef(ref, sourceValue);
         continue;
       }
       if (isPlainObject(targetValue)) {
@@ -34,9 +34,9 @@ function merge(target, source, ref) {
   }
 }
 
-function getCache(ref, key) {
+function getCircularRef(ref, key) {
   const value = ref.get(key);
-  if (!value) throw new Error('Cache key missing');
+  if (!value) throw new Error('Circular reference key missing');
   return value;
 }
 
