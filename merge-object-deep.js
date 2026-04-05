@@ -1,31 +1,31 @@
 export function mergeObjectDeep(target, ...sources) {
-  const cache = new WeakMap();
+  const ref = new WeakMap();
   for (const source of sources) {
     if (isPlainObject(source)) {
-      merge(target, source, cache);
+      merge(target, source, ref);
     }
   }
   return target;
 }
 
-function merge(target, source, cache) {
-  if (cache.has(source)) return;
-  cache.set(source, target);
+function merge(target, source, ref) {
+  if (ref.has(source)) return;
+  ref.set(source, target);
   for (const key of Object.keys(source)) {
     if (key === '__proto__' || key === 'constructor' || key === 'prototype') continue;
     const sourceValue = source[key];
     const targetValue = target[key];
     if (isPlainObject(sourceValue)) {
-      if (cache.has(sourceValue)) {
-        target[key] = getCache(cache, sourceValue);
+      if (ref.has(sourceValue)) {
+        target[key] = getCache(ref, sourceValue);
         continue;
       }
       if (isPlainObject(targetValue)) {
-        merge(targetValue, sourceValue, cache);
+        merge(targetValue, sourceValue, ref);
       } else {
         const clone = {};
-        cache.set(sourceValue, clone);
-        merge(clone, sourceValue, cache);
+        ref.set(sourceValue, clone);
+        merge(clone, sourceValue, ref);
         target[key] = clone;
       }
       continue;
@@ -34,8 +34,8 @@ function merge(target, source, cache) {
   }
 }
 
-function getCache(cache, key) {
-  const value = cache.get(key);
+function getCache(ref, key) {
+  const value = ref.get(key);
   if (!value) throw new Error('Cache key missing');
   return value;
 }

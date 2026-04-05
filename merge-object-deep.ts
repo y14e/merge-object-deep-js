@@ -1,35 +1,35 @@
 type PlainObject = Record<string, unknown>;
 type UnionToIntersection<U> = (U extends unknown ? (_: U) => unknown : never) extends (_: infer I) => unknown ? I : never;
-type Cache = WeakMap<PlainObject, PlainObject>;
+type CircularRef = WeakMap<PlainObject, PlainObject>;
 
 export function mergeObjectDeep<T extends PlainObject, U extends unknown[]>(target: T, ...sources: U): T & UnionToIntersection<Extract<U[number], PlainObject>> {
-  const cache: Cache = new WeakMap();
+  const ref: CircularRef = new WeakMap();
   for (const source of sources) {
     if (isPlainObject(source)) {
-      merge(target, source, cache);
+      merge(target, source, ref);
     }
   }
   return target as T & UnionToIntersection<Extract<U[number], PlainObject>>;
 }
 
-function merge(target: PlainObject, source: PlainObject, cache: Cache): void {
-  if (cache.has(source)) return;
-  cache.set(source, target);
+function merge(target: PlainObject, source: PlainObject, ref: CircularRef): void {
+  if (ref.has(source)) return;
+  ref.set(source, target);
   for (const key of Object.keys(source)) {
     if (key === '__proto__' || key === 'constructor' || key === 'prototype') continue;
     const sourceValue = source[key];
     const targetValue = target[key];
     if (isPlainObject(sourceValue)) {
-      if (cache.has(sourceValue)) {
-        target[key] = getCache(cache, sourceValue);
+      if (ref.has(sourceValue)) {
+        target[key] = getCache(ref, sourceValue);
         continue;
       }
       if (isPlainObject(targetValue)) {
-        merge(targetValue, sourceValue, cache);
+        merge(targetValue, sourceValue, ref);
       } else {
         const clone: PlainObject = {};
-        cache.set(sourceValue, clone);
-        merge(clone, sourceValue, cache);
+        ref.set(sourceValue, clone);
+        merge(clone, sourceValue, ref);
         target[key] = clone;
       }
       continue;
@@ -38,8 +38,8 @@ function merge(target: PlainObject, source: PlainObject, cache: Cache): void {
   }
 }
 
-function getCache(cache: Cache, key: PlainObject): PlainObject {
-  const value = cache.get(key);
+function getCache(ref: CircularRef, key: PlainObject): PlainObject {
+  const value = ref.get(key);
   if (!value) throw new Error('Cache key missing');
   return value;
 }
